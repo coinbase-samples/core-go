@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -30,17 +29,9 @@ import (
 
 const EmptyQueryParams = ""
 
-type Client struct {
-	HttpBaseUrl string
-	Credentials *Credentials
-	HttpClient  *http.Client
-}
-
-type Credentials struct {
-	AccessKey   string
-	Passphrase  string
-	SigningKey  string
-	PortfolioId string
+type Client interface {
+	HttpBaseUrl() string
+	HttpClient() *http.Client
 }
 
 type apiRequest struct {
@@ -145,10 +136,6 @@ func call(
 	headersFunc HeaderFunc,
 ) error {
 
-	if client.Credentials == nil {
-		return errors.New("credentials not set")
-	}
-
 	body, err := json.Marshal(request)
 	if err != nil {
 		return err
@@ -184,7 +171,7 @@ func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) 
 		Request: request,
 	}
 
-	callUrl := fmt.Sprintf("%s%s%s", request.Client.HttpBaseUrl, request.Path, request.Query)
+	callUrl := fmt.Sprintf("%s%s%s", request.Client.HttpBaseUrl(), request.Path, request.Query)
 
 	parsedUrl, err := url.Parse(callUrl)
 	if err != nil {
@@ -212,7 +199,7 @@ func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) 
 
 	headersFunc(req, parsedUrl.Path, requestBody, request.Client, time.Now())
 
-	res, err := request.Client.HttpClient.Do(req)
+	res, err := request.Client.HttpClient().Do(req)
 	if err != nil {
 		response.Error = &ApiError{
 			Message:      err.Error(),
