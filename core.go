@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024-present Coinbase Global, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package core
 
 import (
@@ -27,7 +43,7 @@ type Credentials struct {
 	PortfolioId string
 }
 
-type ApiRequest struct {
+type apiRequest struct {
 	Path                    string
 	Query                   string
 	HttpMethod              string
@@ -37,7 +53,7 @@ type ApiRequest struct {
 }
 
 type ApiResponse struct {
-	Request        *ApiRequest
+	Request        *apiRequest
 	Body           []byte
 	HttpStatusCode int
 	HttpStatusMsg  string
@@ -46,13 +62,13 @@ type ApiResponse struct {
 
 type ApiError struct {
 	Message      string `json:"message"`
-	CodeExpected []int
-	CodeReceived int
-	ParsedUrl    string
+	CodeExpected []int  `json:"-"`
+	CodeReceived int    `json:"-"`
+	ParsedUrl    string `json:"-"`
 }
 
 func (e *ApiError) Error() string {
-	return fmt.Sprintf("Error: %s, Expected Status Codes: %v, Received Status Code: %d, URL: %s", e.Message, e.CodeExpected, e.CodeReceived, e.ParsedUrl)
+	return fmt.Sprintf("Unexpected response: %s, Expected Status Codes: %v, Received Status Code: %d, URL: %s", e.Message, e.CodeExpected, e.CodeReceived, e.ParsedUrl)
 }
 
 type HeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
@@ -66,7 +82,7 @@ func Post(
 	response interface{},
 	headersFunc HeaderFunc,
 ) error {
-	return Call(ctx, client, path, query, http.MethodPost, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodPost, []int{http.StatusOK}, request, response, headersFunc)
 }
 
 func Get(
@@ -78,7 +94,7 @@ func Get(
 	response interface{},
 	headersFunc HeaderFunc,
 ) error {
-	return Call(ctx, client, path, query, http.MethodGet, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodGet, []int{http.StatusOK}, request, response, headersFunc)
 }
 
 func Put(
@@ -90,7 +106,7 @@ func Put(
 	response interface{},
 	headersFunc HeaderFunc,
 ) error {
-	return Call(ctx, client, path, query, http.MethodPut, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodPut, []int{http.StatusOK}, request, response, headersFunc)
 }
 
 func Delete(
@@ -102,7 +118,7 @@ func Delete(
 	response interface{},
 	headersFunc HeaderFunc,
 ) error {
-	return Call(ctx, client, path, query, http.MethodDelete, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodDelete, []int{http.StatusOK}, request, response, headersFunc)
 }
 
 func Patch(
@@ -114,10 +130,10 @@ func Patch(
 	response interface{},
 	headersFunc HeaderFunc,
 ) error {
-	return Call(ctx, client, path, query, http.MethodPatch, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodPatch, []int{http.StatusOK}, request, response, headersFunc)
 }
 
-func Call(
+func call(
 	ctx context.Context,
 	client Client,
 	path,
@@ -138,9 +154,9 @@ func Call(
 		return err
 	}
 
-	resp := MakeCall(
+	resp := makeCall(
 		ctx,
-		&ApiRequest{
+		&apiRequest{
 			Path:                    path,
 			Query:                   query,
 			HttpMethod:              httpMethod,
@@ -162,7 +178,7 @@ func Call(
 	return nil
 }
 
-func MakeCall(ctx context.Context, request *ApiRequest, headersFunc HeaderFunc) *ApiResponse {
+func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) *ApiResponse {
 
 	response := &ApiResponse{
 		Request: request,
