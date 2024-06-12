@@ -197,7 +197,7 @@ func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) 
 	}
 
 	var requestBody []byte
-	if request.HttpMethod == http.MethodPost || request.HttpMethod == http.MethodPut {
+	if request.HttpMethod == http.MethodPost || request.HttpMethod == http.MethodPut || request.HttpMethod == http.MethodPatch {
 		requestBody = request.Body
 	}
 
