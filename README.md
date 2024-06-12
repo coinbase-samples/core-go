@@ -2,7 +2,7 @@
 
 ## Overview 
 
-The core package provides a centralized and reusable implementation for making HTTP requests and handling API responses for Coinbase Institutional Go SDKs. It includes features for setting custom headers, managing credentials, and providing structured error handling.
+The core package provides a centralized and reusable implementation for making HTTP requests and handling API responses for Coinbase Go SDKs. It includes features for setting custom headers, managing credentials, and providing structured error handling.
 
 ## Installation 
 
