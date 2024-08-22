@@ -29,12 +29,6 @@ import (
 
 const EmptyQueryParams = ""
 
-type Client interface {
-	HttpBaseUrl() string
-	HttpClient() *http.Client
-	WebSocketUrl() string
-}
-
 type apiRequest struct {
 	Path                    string
 	Query                   string
