@@ -29,6 +29,16 @@ import (
 
 var defaultDialierHandshakeTimeoutInSeconds = 45 * time.Second
 
+type WebSocketConnetion struct {
+	conn *websocket.Conn
+}
+
+type Closed struct{}
+
+func (m Closed) Error() string {
+	return "WebSocketClosed"
+}
+
 type WebSocketBufferPool interface {
 	// Get gets a value from the pool or returns nil if the pool is empty.
 	Get() interface{}
@@ -101,6 +111,37 @@ type DialerConfig struct {
 	Jar http.CookieJar
 }
 
+type OnBinaryMessage func(message []byte) bool
+
+func IsUnexpectedCloseError(err error, expectedCodes ...int) bool {
+	return websocket.IsUnexpectedCloseError(err, expectedCodes...)
+}
+
+func IsCloseError(err error, expectedCodes ...int) bool {
+	return websocket.IsCloseError(err, expectedCodes...)
+}
+
+func Listen(c *websocket.Conn, messageHandler OnBinaryMessage) error {
+
+	for {
+		messageType, message, err := c.ReadMessage()
+		if err != nil {
+			return err
+		}
+
+		switch messageType {
+		case websocket.BinaryMessage:
+			messageHandler(message)
+		case websocket.CloseMessage:
+			return &Closed{}
+		}
+	}
+}
+
+func WriteCloseMessge(c *websocket.Conn) error {
+	return c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+}
+
 func DialWebSocket(ctx context.Context, config DialerConfig) (*websocket.Conn, error) {
 
 	u := url.URL{Scheme: "wss", Host: config.Url}
@@ -124,7 +165,7 @@ func DialWebSocket(ctx context.Context, config DialerConfig) (*websocket.Conn, e
 		dialer.Proxy = http.ProxyFromEnvironment
 	}
 
-	if dialer.HandshakeTimeout == 0 {
+	if dialer.HandshakeTimeout <= 0 {
 		dialer.HandshakeTimeout = defaultDialierHandshakeTimeoutInSeconds
 	}
 
