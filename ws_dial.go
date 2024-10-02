@@ -27,7 +27,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var defaultDialierHandshakeTimeoutInSeconds = 45 * time.Second
+var defaultDialierHandshakeTimeoutInSeconds = 10 * time.Second
 
 type WebSocketBufferPool interface {
 	// Get gets a value from the pool or returns nil if the pool is empty.
@@ -101,7 +101,7 @@ type DialerConfig struct {
 	Jar http.CookieJar
 }
 
-func DialWebSocket(ctx context.Context, config DialerConfig) (*websocket.Conn, error) {
+func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnetion, error) {
 
 	u := url.URL{Scheme: "wss", Host: config.Url}
 
@@ -133,5 +133,5 @@ func DialWebSocket(ctx context.Context, config DialerConfig) (*websocket.Conn, e
 		return nil, err
 	}
 
-	return c, nil
+	return &WebSocketConnetion{conn: c}, nil
 }
