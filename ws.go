@@ -17,53 +17,15 @@
 package core
 
 import (
-	"net"
+	"context"
+	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-type WebSocketConnetion struct {
-	conn *websocket.Conn
-}
-
-func (c *WebSocketConnetion) SetReadDeadline(t time.Time) error {
-	return c.conn.SetReadDeadline(t)
-}
-
-func (c *WebSocketConnetion) SetReadLimit(limit int64) {
-	c.conn.SetReadLimit(limit)
-}
-
-func (c *WebSocketConnetion) CloseHandler() func(code int, text string) error {
-	return c.conn.CloseHandler()
-}
-
-func (c *WebSocketConnetion) SetCloseHandler(h func(code int, text string) error) {
-	c.SetCloseHandler(h)
-}
-
-func (c *WebSocketConnetion) NetConn() net.Conn {
-	return c.NetConn()
-}
-
-func (c *WebSocketConnetion) ReadMessage() (messageType int, p []byte, err error) {
-	return c.ReadMessage()
-}
-
-func (c *WebSocketConnetion) Close() error {
-	return c.Close()
-}
-
-func (c *WebSocketConnetion) RemoteAddr() net.Addr {
-	return c.RemoteAddr()
-}
-
-func (c *WebSocketConnetion) Subprotocol() string {
-	return c.Subprotocol()
-}
-
-type OnWebSocketBinaryMessage func(message []byte) bool
+var defaultDialierHandshakeTimeoutInSeconds = 10 * time.Second
 
 func ListenForWebSocketMessages(c *WebSocketConnetion, messageHandler OnWebSocketBinaryMessage) error {
 	for {
@@ -79,4 +41,39 @@ func ListenForWebSocketMessages(c *WebSocketConnetion, messageHandler OnWebSocke
 			return nil
 		}
 	}
+}
+
+func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnetion, error) {
+
+	u := url.URL{Scheme: "wss", Host: config.Url}
+
+	var dialer = &websocket.Dialer{
+		NetDial:           config.NetDial,
+		NetDialContext:    config.NetDialContext,
+		NetDialTLSContext: config.NetDialTlsContext,
+		Proxy:             config.Proxy,
+		HandshakeTimeout:  config.HandshakeTimeout,
+		TLSClientConfig:   config.TlsClientConfig,
+		ReadBufferSize:    config.ReadBufferSize,
+		WriteBufferSize:   config.WriteBufferSize,
+		WriteBufferPool:   config.WriteBufferPool,
+		Subprotocols:      config.Subprotocols,
+		EnableCompression: config.EnableCompression,
+		Jar:               config.Jar,
+	}
+
+	if dialer.Proxy == nil {
+		dialer.Proxy = http.ProxyFromEnvironment
+	}
+
+	if dialer.HandshakeTimeout <= 0 {
+		dialer.HandshakeTimeout = defaultDialierHandshakeTimeoutInSeconds
+	}
+
+	c, _, err := dialer.DialContext(ctx, u.String(), config.RequestHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WebSocketConnetion{conn: c}, nil
 }
