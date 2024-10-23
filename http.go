@@ -22,9 +22,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
+
+	"golang.org/x/net/http2"
 )
 
 const EmptyQueryParams = ""
@@ -58,6 +61,32 @@ func (e *ApiError) Error() string {
 }
 
 type HeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
+
+func DefaultHttpClient() (http.Client, error) {
+
+	tr := &http.Transport{
+		ResponseHeaderTimeout: 5 * time.Second,
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			KeepAlive: 30 * time.Second,
+			DualStack: true,
+			Timeout:   5 * time.Second,
+		}).DialContext,
+		MaxIdleConns:          10,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   5 * time.Second,
+		MaxIdleConnsPerHost:   5,
+		ExpectContinueTimeout: 2 * time.Second,
+	}
+
+	if err := http2.ConfigureTransport(tr); err != nil {
+		return http.Client{}, err
+	}
+
+	return http.Client{
+		Transport: tr,
+	}, nil
+}
 
 func Post(
 	ctx context.Context,
