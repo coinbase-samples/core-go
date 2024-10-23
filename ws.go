@@ -43,6 +43,12 @@ func ListenForWebSocketMessages(c *WebSocketConnetion, messageHandler OnWebSocke
 	}
 }
 
+func DefaultDialerConfig() DialerConfig {
+	return DialerConfig{
+		HandshakeTimeout: 5 * time.Second,
+	}
+}
+
 func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnetion, error) {
 
 	u := url.URL{Scheme: "wss", Host: config.Url}
