@@ -31,7 +31,15 @@ import (
 	"golang.org/x/net/http2"
 )
 
-const EmptyQueryParams = ""
+const (
+	EmptyQueryParams = ""
+
+	QueryParamFirstSep = "?"
+
+	QueryParamAdditionalSep = "&"
+
+	appendQueryParamPattern = "%s%s%s=%s"
+)
 
 type apiRequest struct {
 	Path                    string
@@ -277,13 +285,12 @@ func makeCall(ctx context.Context, request *apiRequest, headersFunc HttpHeaderFu
 }
 
 func AppendHttpQueryParam(queryParams, key, value string) string {
-	return fmt.Sprintf("%s%s%s=%s", queryParams, HttpQueryParamSep(strings.Contains(queryParams, "?")), key, value)
+	return fmt.Sprintf(appendQueryParamPattern, queryParams, HttpQueryParamSep(strings.Contains(queryParams, QueryParamFirstSep)), key, value)
 }
 
 func HttpQueryParamSep(appended bool) string {
 	if appended {
-		return "&"
+		return QueryParamAdditionalSep
 	}
-	return "?"
-
+	return QueryParamFirstSep
 }
