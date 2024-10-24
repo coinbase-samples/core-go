@@ -28,6 +28,6 @@ func IsWebSocketCloseError(err error, expectedCodes ...int) bool {
 	return websocket.IsCloseError(err, expectedCodes...)
 }
 
-func WriteWebSocketCloseMessge(c *WebSocketConnetion) error {
+func WriteWebSocketCloseMessge(c *WebSocketConnection) error {
 	return c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 }

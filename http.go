@@ -41,6 +41,8 @@ const (
 	appendQueryParamPattern = "%s%s%s=%s"
 )
 
+type HttpHeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
+
 type apiRequest struct {
 	Path                    string
 	Query                   string
@@ -68,8 +70,6 @@ type ApiError struct {
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("Unexpected response: %s, Expected Status Codes: %v, Received Status Code: %d, URL: %s", e.Message, e.CodeExpected, e.CodeReceived, e.ParsedUrl)
 }
-
-type HttpHeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
 
 func DefaultHttpClient() (http.Client, error) {
 

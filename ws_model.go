@@ -29,43 +29,43 @@ import (
 
 type OnWebSocketBinaryMessage func(message []byte) bool
 
-type WebSocketConnetion struct {
+type WebSocketConnection struct {
 	conn *websocket.Conn
 }
 
-func (c *WebSocketConnetion) SetReadDeadline(t time.Time) error {
+func (c *WebSocketConnection) SetReadDeadline(t time.Time) error {
 	return c.conn.SetReadDeadline(t)
 }
 
-func (c *WebSocketConnetion) SetReadLimit(limit int64) {
+func (c *WebSocketConnection) SetReadLimit(limit int64) {
 	c.conn.SetReadLimit(limit)
 }
 
-func (c *WebSocketConnetion) CloseHandler() func(code int, text string) error {
+func (c *WebSocketConnection) CloseHandler() func(code int, text string) error {
 	return c.conn.CloseHandler()
 }
 
-func (c *WebSocketConnetion) SetCloseHandler(h func(code int, text string) error) {
+func (c *WebSocketConnection) SetCloseHandler(h func(code int, text string) error) {
 	c.SetCloseHandler(h)
 }
 
-func (c *WebSocketConnetion) NetConn() net.Conn {
+func (c *WebSocketConnection) NetConn() net.Conn {
 	return c.NetConn()
 }
 
-func (c *WebSocketConnetion) ReadMessage() (messageType int, p []byte, err error) {
+func (c *WebSocketConnection) ReadMessage() (messageType int, p []byte, err error) {
 	return c.ReadMessage()
 }
 
-func (c *WebSocketConnetion) Close() error {
+func (c *WebSocketConnection) Close() error {
 	return c.Close()
 }
 
-func (c *WebSocketConnetion) RemoteAddr() net.Addr {
+func (c *WebSocketConnection) RemoteAddr() net.Addr {
 	return c.RemoteAddr()
 }
 
-func (c *WebSocketConnetion) Subprotocol() string {
+func (c *WebSocketConnection) Subprotocol() string {
 	return c.Subprotocol()
 }
 

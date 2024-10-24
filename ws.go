@@ -27,7 +27,7 @@ import (
 
 var defaultDialierHandshakeTimeoutInSeconds = 10 * time.Second
 
-func ListenForWebSocketMessages(c *WebSocketConnetion, messageHandler OnWebSocketBinaryMessage) error {
+func ListenForWebSocketMessages(c *WebSocketConnection, messageHandler OnWebSocketBinaryMessage) error {
 	for {
 		messageType, message, err := c.ReadMessage()
 		if err != nil {
@@ -49,7 +49,7 @@ func DefaultDialerConfig() DialerConfig {
 	}
 }
 
-func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnetion, error) {
+func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnection, error) {
 
 	u := url.URL{Scheme: "wss", Host: config.Url}
 
@@ -81,5 +81,5 @@ func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnetio
 		return nil, err
 	}
 
-	return &WebSocketConnetion{conn: c}, nil
+	return &WebSocketConnection{conn: c}, nil
 }
