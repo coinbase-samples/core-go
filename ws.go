@@ -43,8 +43,9 @@ func ListenForWebSocketMessages(c *WebSocketConnection, messageHandler OnWebSock
 	}
 }
 
-func DefaultDialerConfig() DialerConfig {
+func DefaultDialerConfig(url string) DialerConfig {
 	return DialerConfig{
+		Url:              url,
 		HandshakeTimeout: 5 * time.Second,
 	}
 }
