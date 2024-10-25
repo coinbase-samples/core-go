@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-func TestAppendQueryParam(t *testing.T) {
+func TestAppendHttpQueryParam(t *testing.T) {
 
 	cases := []struct {
 		description string
@@ -30,21 +30,21 @@ func TestAppendQueryParam(t *testing.T) {
 		expected    string
 	}{
 		{
-			description: "TestAppendQueryParam0",
+			description: "TestAppendHttpQueryParam0",
 			queryParams: "",
 			key:         "foo",
 			value:       "bar",
 			expected:    "?foo=bar",
 		},
 		{
-			description: "TestAppendQueryParam1",
+			description: "TestAppendHttpQueryParam1",
 			queryParams: "?test=new",
 			key:         "foo",
 			value:       "bar",
 			expected:    "?test=new&foo=bar",
 		},
 		{
-			description: "TestAppendQueryParam2",
+			description: "TestAppendHttpQueryParam2",
 			queryParams: "?test=new&new=test",
 			key:         "foo",
 			value:       "bar",
@@ -54,7 +54,7 @@ func TestAppendQueryParam(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.description, func(t *testing.T) {
-			result := AppendQueryParam(tt.queryParams, tt.key, tt.value)
+			result := AppendHttpQueryParam(tt.queryParams, tt.key, tt.value)
 			if result != tt.expected {
 				t.Errorf("test: %s - expected: %s - received: %s", tt.description, tt.expected, result)
 			}

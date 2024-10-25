@@ -24,3 +24,24 @@ func StrToNum(v string) (amount decimal.Decimal, err error) {
 	amount, err = decimal.NewFromString(v)
 	return
 }
+
+// StrSliceDiff returns a new slice of strings that are not present in b, but not
+// in a (O(n^2)). This is an exact string match, so case is important.
+func StrSliceDiff(a []string, b []string) (diff []string) {
+
+	for _, bv := range b {
+		var found bool
+		for _, av := range a {
+			if av == bv {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			diff = append(diff, bv)
+		}
+	}
+
+	return
+}
