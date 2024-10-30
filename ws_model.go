@@ -27,7 +27,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type OnWebSocketBinaryMessage func(message []byte) bool
+type OnWebSocketBinaryMessage func(message []byte)
 
 type WebSocketConnection struct {
 	conn *websocket.Conn

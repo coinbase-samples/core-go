@@ -41,7 +41,7 @@ const (
 	appendQueryParamPattern = "%s%s%s=%s"
 )
 
-type HttpHeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
+type HttpHeaderFunc func(req *http.Request, path string, body []byte, client RestClient, t time.Time)
 
 type apiRequest struct {
 	Path                    string
@@ -49,7 +49,7 @@ type apiRequest struct {
 	HttpMethod              string
 	Body                    []byte
 	ExpectedHttpStatusCodes []int
-	Client                  Client
+	Client                  RestClient
 }
 
 type ApiResponse struct {
@@ -99,7 +99,7 @@ func DefaultHttpClient() (http.Client, error) {
 
 func HttpPost(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
 	expectedHttpStatusCodes []int,
@@ -112,7 +112,7 @@ func HttpPost(
 
 func HttpGet(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
 	expectedHttpStatusCodes []int,
@@ -125,7 +125,7 @@ func HttpGet(
 
 func HttpPut(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
 	expectedHttpStatusCodes []int,
@@ -138,7 +138,7 @@ func HttpPut(
 
 func HttpDelete(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
 	expectedHttpStatusCodes []int,
@@ -151,7 +151,7 @@ func HttpDelete(
 
 func HttpPatch(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
 	expectedHttpStatusCodes []int,
@@ -164,7 +164,7 @@ func HttpPatch(
 
 func call(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query,
 	httpMethod string,

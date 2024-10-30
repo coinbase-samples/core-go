@@ -18,8 +18,11 @@ package core
 
 import "net/http"
 
-type Client interface {
+type RestClient interface {
 	HttpBaseUrl() string
 	HttpClient() *http.Client
+}
+
+type WebSocketClient interface {
 	WebSocketUrl() string
 }
