@@ -27,6 +27,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	// TextMessage denotes a text data message. The text message payload is
+	// interpreted as UTF-8 encoded text data.
+	WebSocketTextMessage = 1
+
+	// BinaryMessage denotes a binary data message.
+	WebSocketBinaryMessage = 2
+
+	// CloseMessage denotes a close control message. The optional message
+	// payload contains a numeric code and text. Use the FormatCloseMessage
+	// function to format a close message payload.
+	WebSocketCloseMessage = 8
+)
+
 type OnWebSocketBinaryMessage func(message []byte)
 
 type WebSocketConnection struct {
