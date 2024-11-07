@@ -71,6 +71,10 @@ func (c *WebSocketConnection) ReadMessage() (messageType int, p []byte, err erro
 	return c.ReadMessage()
 }
 
+func (c *WebSocketConnection) WriteMessage(messageType int, p []byte) error {
+	return c.WriteMessage(messageType, p)
+}
+
 func (c *WebSocketConnection) Close() error {
 	return c.Close()
 }
