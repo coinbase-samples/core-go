@@ -41,7 +41,7 @@ const (
 	WebSocketCloseMessage = 8
 )
 
-type OnWebSocketBinaryMessage func(message []byte)
+type OnWebSocketTextMessage func(message []byte)
 
 type WebSocketConnection struct {
 	conn *websocket.Conn

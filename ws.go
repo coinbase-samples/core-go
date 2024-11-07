@@ -27,7 +27,7 @@ import (
 
 var defaultDialierHandshakeTimeoutInSeconds = 10 * time.Second
 
-func ListenForWebSocketMessages(c *WebSocketConnection, messageHandler OnWebSocketBinaryMessage) error {
+func ListenForWebSocketTextMessages(c *WebSocketConnection, messageHandler OnWebSocketTextMessage) error {
 	for {
 		messageType, message, err := c.ReadMessage()
 		if err != nil {
@@ -35,7 +35,7 @@ func ListenForWebSocketMessages(c *WebSocketConnection, messageHandler OnWebSock
 		}
 
 		switch messageType {
-		case websocket.BinaryMessage:
+		case websocket.TextMessage:
 			messageHandler(message)
 		case websocket.CloseMessage:
 			return nil
