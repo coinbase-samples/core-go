@@ -60,31 +60,31 @@ func (c *WebSocketConnection) CloseHandler() func(code int, text string) error {
 }
 
 func (c *WebSocketConnection) SetCloseHandler(h func(code int, text string) error) {
-	c.SetCloseHandler(h)
+	c.conn.SetCloseHandler(h)
 }
 
 func (c *WebSocketConnection) NetConn() net.Conn {
-	return c.NetConn()
+	return c.conn.NetConn()
 }
 
 func (c *WebSocketConnection) ReadMessage() (messageType int, p []byte, err error) {
-	return c.ReadMessage()
+	return c.conn.ReadMessage()
 }
 
 func (c *WebSocketConnection) WriteMessage(messageType int, p []byte) error {
-	return c.WriteMessage(messageType, p)
+	return c.conn.WriteMessage(messageType, p)
 }
 
 func (c *WebSocketConnection) Close() error {
-	return c.Close()
+	return c.conn.Close()
 }
 
 func (c *WebSocketConnection) RemoteAddr() net.Addr {
-	return c.RemoteAddr()
+	return c.conn.RemoteAddr()
 }
 
 func (c *WebSocketConnection) Subprotocol() string {
-	return c.Subprotocol()
+	return c.conn.Subprotocol()
 }
 
 type WebSocketBufferPool interface {
