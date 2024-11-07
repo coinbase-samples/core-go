@@ -47,12 +47,16 @@ func DefaultDialerConfig(url string) DialerConfig {
 	return DialerConfig{
 		Url:              url,
 		HandshakeTimeout: 5 * time.Second,
+		Proxy:            http.ProxyFromEnvironment,
 	}
 }
 
 func DialWebSocket(ctx context.Context, config DialerConfig) (*WebSocketConnection, error) {
 
-	u := url.URL{Scheme: "wss", Host: config.Url}
+	u, err := url.Parse(config.Url)
+	if err != nil {
+		return nil, err
+	}
 
 	var dialer = &websocket.Dialer{
 		NetDial:           config.NetDial,
