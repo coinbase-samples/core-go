@@ -22,17 +22,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
+
+	"golang.org/x/net/http2"
 )
 
-const EmptyQueryParams = ""
+const (
+	EmptyQueryParams = ""
 
-type Client interface {
-	HttpBaseUrl() string
-	HttpClient() *http.Client
-}
+	QueryParamFirstSep = "?"
+
+	QueryParamAdditionalSep = "&"
+
+	appendQueryParamPattern = "%s%s%s=%s"
+)
+
+type HttpHeaderFunc func(req *http.Request, path string, body []byte, client RestClient, t time.Time)
 
 type apiRequest struct {
 	Path                    string
@@ -40,7 +49,7 @@ type apiRequest struct {
 	HttpMethod              string
 	Body                    []byte
 	ExpectedHttpStatusCodes []int
-	Client                  Client
+	Client                  RestClient
 }
 
 type ApiResponse struct {
@@ -62,78 +71,107 @@ func (e *ApiError) Error() string {
 	return fmt.Sprintf("Unexpected response: %s, Expected Status Codes: %v, Received Status Code: %d, URL: %s", e.Message, e.CodeExpected, e.CodeReceived, e.ParsedUrl)
 }
 
-type HeaderFunc func(req *http.Request, path string, body []byte, client Client, t time.Time)
+func DefaultHttpClient() (http.Client, error) {
 
-func Post(
-	ctx context.Context,
-	client Client,
-	path,
-	query string,
-	request,
-	response interface{},
-	headersFunc HeaderFunc,
-) error {
-	return call(ctx, client, path, query, http.MethodPost, []int{http.StatusOK}, request, response, headersFunc)
+	tr := &http.Transport{
+		ResponseHeaderTimeout: 5 * time.Second,
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			KeepAlive: 30 * time.Second,
+			DualStack: true,
+			Timeout:   5 * time.Second,
+		}).DialContext,
+		MaxIdleConns:          10,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   5 * time.Second,
+		MaxIdleConnsPerHost:   5,
+		ExpectContinueTimeout: 2 * time.Second,
+	}
+
+	if err := http2.ConfigureTransport(tr); err != nil {
+		return http.Client{}, err
+	}
+
+	return http.Client{
+		Transport: tr,
+	}, nil
 }
 
-func Get(
+func HttpPost(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
+	expectedHttpStatusCodes []int,
 	request,
 	response interface{},
-	headersFunc HeaderFunc,
+	headersFunc HttpHeaderFunc,
 ) error {
-	return call(ctx, client, path, query, http.MethodGet, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodPost, expectedHttpStatusCodes, request, response, headersFunc)
 }
 
-func Put(
+func HttpGet(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
+	expectedHttpStatusCodes []int,
 	request,
 	response interface{},
-	headersFunc HeaderFunc,
+	headersFunc HttpHeaderFunc,
 ) error {
-	return call(ctx, client, path, query, http.MethodPut, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodGet, expectedHttpStatusCodes, request, response, headersFunc)
 }
 
-func Delete(
+func HttpPut(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
+	expectedHttpStatusCodes []int,
 	request,
 	response interface{},
-	headersFunc HeaderFunc,
+	headersFunc HttpHeaderFunc,
 ) error {
-	return call(ctx, client, path, query, http.MethodDelete, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodPut, expectedHttpStatusCodes, request, response, headersFunc)
 }
 
-func Patch(
+func HttpDelete(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query string,
+	expectedHttpStatusCodes []int,
 	request,
 	response interface{},
-	headersFunc HeaderFunc,
+	headersFunc HttpHeaderFunc,
 ) error {
-	return call(ctx, client, path, query, http.MethodPatch, []int{http.StatusOK}, request, response, headersFunc)
+	return call(ctx, client, path, query, http.MethodDelete, expectedHttpStatusCodes, request, response, headersFunc)
+}
+
+func HttpPatch(
+	ctx context.Context,
+	client RestClient,
+	path,
+	query string,
+	expectedHttpStatusCodes []int,
+	request,
+	response interface{},
+	headersFunc HttpHeaderFunc,
+) error {
+	return call(ctx, client, path, query, http.MethodPatch, expectedHttpStatusCodes, request, response, headersFunc)
 }
 
 func call(
 	ctx context.Context,
-	client Client,
+	client RestClient,
 	path,
 	query,
 	httpMethod string,
 	expectedHttpStatusCodes []int,
 	request,
 	response interface{},
-	headersFunc HeaderFunc,
+	headersFunc HttpHeaderFunc,
 ) error {
 
 	body, err := json.Marshal(request)
@@ -165,7 +203,7 @@ func call(
 	return nil
 }
 
-func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) *ApiResponse {
+func makeCall(ctx context.Context, request *apiRequest, headersFunc HttpHeaderFunc) *ApiResponse {
 
 	response := &ApiResponse{
 		Request: request,
@@ -244,4 +282,15 @@ func makeCall(ctx context.Context, request *apiRequest, headersFunc HeaderFunc) 
 	}
 
 	return response
+}
+
+func AppendHttpQueryParam(queryParams, key, value string) string {
+	return fmt.Sprintf(appendQueryParamPattern, queryParams, HttpQueryParamSep(strings.Contains(queryParams, QueryParamFirstSep)), key, value)
+}
+
+func HttpQueryParamSep(appended bool) string {
+	if appended {
+		return QueryParamAdditionalSep
+	}
+	return QueryParamFirstSep
 }
