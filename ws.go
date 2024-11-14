@@ -27,6 +27,9 @@ import (
 
 var defaultDialierHandshakeTimeoutInSeconds = 10 * time.Second
 
+// ListenForWebSocketTextMessages is a blocking call that listens for messges. If there is an
+// error, it exits and the error is returned. If a close message is received, the function
+// exits and returns nil.
 func ListenForWebSocketTextMessages(c *WebSocketConnection, messageHandler OnWebSocketTextMessage) error {
 	for {
 		messageType, message, err := c.ReadMessage()
