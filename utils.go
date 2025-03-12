@@ -17,10 +17,15 @@
 package core
 
 import (
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
 func StrToNum(v string) (amount decimal.Decimal, err error) {
 	amount, err = decimal.NewFromString(v)
 	return
+}
+
+func NewUuid() string {
+	return uuid.New().String()
 }
