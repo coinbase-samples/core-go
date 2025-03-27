@@ -74,17 +74,17 @@ func (e *ApiError) Error() string {
 func DefaultHttpClient() (http.Client, error) {
 
 	tr := &http.Transport{
-		ResponseHeaderTimeout: 5 * time.Second,
+		ResponseHeaderTimeout: 10 * time.Second,
 		Proxy:                 http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			KeepAlive: 30 * time.Second,
 			DualStack: true,
 			Timeout:   5 * time.Second,
 		}).DialContext,
-		MaxIdleConns:          10,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   5 * time.Second,
-		MaxIdleConnsPerHost:   5,
+		MaxIdleConns:          50,
+		IdleConnTimeout:       45 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		MaxIdleConnsPerHost:   50,
 		ExpectContinueTimeout: 2 * time.Second,
 	}
 
