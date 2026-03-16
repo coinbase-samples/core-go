@@ -28,3 +28,15 @@ Then, create a new instance of the `Client` struct:
 ```go
 client := core.NewClient()
 ```
+
+## 🚨 Security and Bug Reports
+
+If you discover a security vulnerability within this SDK, please see our [Security Policy](SECURITY.md) for disclosure information.
+
+## 📧 Contact
+
+- [GitHub Issues](https://github.com/coinbase-samples/core-go/issues)
+
+## License
+
+The *Prime Go SDK* sample library is free and open source and released under the [Apache License, Version 2.0](LICENSE).
