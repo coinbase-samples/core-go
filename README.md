@@ -1,3 +1,8 @@
+> **Deprecated:** This repository has moved to [github.com/coinbase/core-go](https://github.com/coinbase/core-go).
+> Install with `go get github.com/coinbase/core-go` and update imports from
+> `github.com/coinbase-samples/core-go` to `github.com/coinbase/core-go`.
+> This repository is no longer maintained.
+
 # Core Package README
 
 [![GoDoc](https://godoc.org/github.com/coinbase-samples/core-go?status.svg)](https://godoc.org/github.com/coinbase-samples/core-go)
